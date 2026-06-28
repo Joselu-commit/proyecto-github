@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>JLIA Generstor</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+input, select {
+  padding: 10px;
+  width: 300px;
+  margin: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  background: #22c55e;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+#resultado {
+  margin-top: 20px;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  background: #1e293b;
+  padding: 20px;
+}
+
+.premium {
+  margin-top: 20px;
+  color: #facc15;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Documentos PRO IA</h1>
+<p>Genera documentos profesionales con inteligencia artificial</p>
+
+<select id="tipo">
+  <option value="cv">Currículum profesional</option>
+  <option value="carta">Carta de presentación</option>
+  <option value="email">Email profesional</option>
+  <option value="propuesta">Propuesta comercial</option>
+  <option value="contrato">Contrato básico</option>
+</select>
+
+<br>
+
+<input id="input" placeholder="Describe tu caso (Ej: puesto de trabajo, empresa...)">
+
+<br>
+
+<button onclick="generar()">Generar</button>
+
+<div id="resultado"></div>
+
+<div class="premium" id="premium"></div>
+
+<script>
+let usos = localStorage.getItem("usos") || 0;
+const limite = 3;
+
+async function generar() {
+  if (usos >= limite) {
+    document.getElementById("premium").innerHTML =
+      "⚠️ Límite gratis alcanzado.<br><br>" +
+      "<button onclick='irPago()'>Desbloquear PRO</button>";
+    return;
+  }
+
+  const texto = document.getElementById("input").value;
+  const tipo = document.getElementById("tipo").value;
+
+  const prompt = `Genera un ${tipo} profesional basado en: ${texto}.
+Hazlo claro, formal y bien estructurado.`;
+
+  const res = await fetch("https://api-inference.huggingface.co/models/google/flan-t5-base", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer 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",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ inputs: prompt })
+  });
+
+  const data = await res.json();
+
+  document.getElementById("resultado").innerText =
+    data[0]?.generated_text || data[0]?.summary_text || "Error, prueba otra vez";
+
+  usos++;
+  localStorage.setItem("usos", usos);
+}
+
+function irPago() {
+  window.location.href = "https://buy.stripe.com/test";
+}
+</script>
+
+</body>
+</html>
