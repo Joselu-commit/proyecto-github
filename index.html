@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Documentos PRO IA</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+select {
+    padding: 10px;
+    width: 300px;
+    margin: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    background: #22c55e;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 6px;
+}
+
+#resultado {
+    margin-top: 20px;
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: left;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    white-space: pre-wrap;
+}
+</style>
+</head>
+
+<body>
+<h1>Documentos PRO IA</h1>
+<p>Genera documentos profesionales con inteligencia artificial</p>
+
+<select id="tipo">
+    <option value="Propuesta comercial">Propuesta comercial</option>
+    <option value="Carta formal">Carta formal</option>
+    <option value="Informe profesional">Informe profesional</option>
+</select>
+
+<select id="detalle">
+    <option value="puesto de administrativo">puesto de administrativo</option>
+    <option value="puesto de ventas">puesto de ventas</option>
+    <option value="puesto de marketing">puesto de marketing</option>
+</select>
+
+<button onclick="generar()">Generar</button>
+
+<div id="resultado"></div>
+
+<script>
+async function generar() {
+    const tipo = document.getElementById("tipo").value;
+    const detalle = document.getElementById("detalle").value;
+
+    document.getElementById("resultado").innerHTML = "Generando documento...";
+
+    const respuesta = await fetch(
+        "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct",
+        {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer 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",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                inputs: `Genera un documento tipo ${tipo} para ${detalle}.`
+            })
+        }
+    );
+
+    const datos = await respuesta.json();
+
+    const texto =
+        datos[0]?.generated_text ||
+        datos.generated_text ||
+        JSON.stringify(datos, null, 2) ||
+        "No se pudo generar el documento.";
+
+    document.getElementById("resultado").innerHTML = texto;
+}
+</script>
+
+</body>
+</html>
